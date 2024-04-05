@@ -1,0 +1,131 @@
+import java.time.Year
+
+plugins {
+    id 'java-library'
+    id 'maven-publish'
+    id 'org.cadixdev.licenser' version '0.6.1'
+}
+
+defaultTasks 'licenseFormat', 'build'
+
+group = 'de.alphaconqueror'
+version = '1.0-SNAPSHOT'
+
+// read environment from .env
+// this somehow causes a lot of warnings at unrelated locations
+Map<String, String> envMap = new HashMap<>()
+File envFile = file('.env')
+
+if (envFile.exists()) {
+    envFile.readLines().each() {
+        if (!it.isEmpty() && !it.startsWith("#")) {
+            def (key, value) = it.tokenize('=')
+
+            envMap[key] = value
+        }
+    }
+}
+
+repositories {
+    mavenCentral()
+
+    maven {
+        url = uri("https://maven.pkg.github.com/alphaconqueror/java-common-utils")
+
+        credentials {
+            username = envMap["USERNAME"]
+            password = envMap["TOKEN"]
+        }
+    }
+}
+
+dependencies {
+    compileOnly 'org.checkerframework:checker-qual:3.21.2'
+    compileOnly 'org.jetbrains:annotations:23.1.0'
+
+    api 'org.apache.logging.log4j:log4j-core:2.22.1'
+    api 'org.apache.logging.log4j:log4j-api:2.22.1'
+
+    api 'net.dv8tion:JDA:5.0.0-beta.19'
+    api 'de.alphaconqueror:java-common-utils:1.0-SNAPSHOT'
+
+    api 'com.typesafe:config:1.4.0'
+
+    api('org.spongepowered:configurate-hocon:3.7.2') {
+        transitive = false
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+
+    if (JavaVersion.current() != JavaVersion.VERSION_1_8) {
+        options.release = 8
+    }
+}
+
+jar {
+    from '../LICENSE.txt'
+}
+
+def checkLicenseUpToDate = { path ->
+    if (!rootProject.file(path).readLines().stream().anyMatch { it.contains(Year.now().toString()) }) {
+        throw new Exception("${path} does not contain current year.")
+    }
+}
+
+checkLicenseUpToDate('LICENSE.txt')
+
+def determinePatchVersion = {
+    // get the name of the last tag
+    def tagInfo = new ByteArrayOutputStream()
+
+    exec {
+        // this is buggy sometimes: add or remove 'cmd'
+        commandLine 'git', 'rev-list', 'HEAD', '--count'
+        standardOutput = tagInfo
+    }
+
+    return tagInfo.toString().replace("\n", "")
+}
+
+def majorVersion = '1'
+def minorVersion = '0'
+def patchVersion = determinePatchVersion()
+def apiVersion = majorVersion + '.' + minorVersion
+def fullVersion = apiVersion + '.' + patchVersion
+
+license {
+    header = rootProject.file('LICENSE.txt')
+    include '**/*.java'
+    newLine = true
+}
+
+javadoc {
+    title = 'Discord Bot Utils (v' + apiVersion + ')'
+    options.encoding = 'UTF-8'
+    options.charSet = 'UTF-8'
+}
+
+java {
+    withJavadocJar()
+    withSourcesJar()
+}
+
+publishing {
+    repositories {
+        maven {
+            url = uri("https://maven.pkg.github.com/alphaconqueror/discord-bot-utils")
+
+            credentials {
+                username = envMap["USERNAME"]
+                password = envMap["TOKEN"]
+            }
+        }
+    }
+    publications {
+        gpr(MavenPublication) {
+            from(components.java)
+        }
+    }
+}
