@@ -74,8 +74,6 @@ public class DiscordBotClient {
 
             final Duration timeTaken = Duration.between(startupTime, Instant.now());
             this.logger.info("Successfully enabled. (took " + timeTaken.toMillis() + "ms)");
-
-            //this.clientSocket.send(null);
         }
 
         public void disable() {
