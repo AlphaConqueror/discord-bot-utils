@@ -32,17 +32,18 @@ import org.jetbrains.annotations.NotNull;
 
 public class InteractionContext {
 
-    private final DiscordBotClient.@NonNull Client client;
+    @NonNull
+    private final DiscordBotClient client;
     @NonNull
     private final SlashCommandInteractionEvent event;
 
-    public InteractionContext(final DiscordBotClient.@NotNull Client client,
+    public InteractionContext(@NotNull final DiscordBotClient client,
             final @NotNull SlashCommandInteractionEvent event) {
         this.client = client;
         this.event = event;
     }
 
-    public DiscordBotClient.@NonNull Client getClient() {
+    public @NonNull DiscordBotClient getClient() {
         return this.client;
     }
 

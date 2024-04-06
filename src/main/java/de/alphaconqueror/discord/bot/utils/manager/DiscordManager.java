@@ -36,6 +36,7 @@ import de.alphaconqueror.discord.bot.utils.commands.TestCommand;
 import de.alphaconqueror.discord.bot.utils.commands.UnsyncCommand;
 import de.alphaconqueror.discord.bot.utils.config.ConfigKeys;
 import java.lang.reflect.InvocationTargetException;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -54,25 +55,43 @@ import org.jetbrains.annotations.NotNull;
 
 public class DiscordManager {
 
-    private static final Set<Class<? extends AbstractCommand>> commandClasses = ImmutableSet.of(
-            ReloadCommand.class, RestartCommand.class, ShutdownCommand.class, SyncCommand.class,
-            TestCommand.class, UnsyncCommand.class);
-    private final DiscordBotClient.Client client;
     @NonNull
-    private final JDA jda;
-    private final Map<AbstractCommand, CommandData> globalCommands;
-    private final Map<AbstractCommand, CommandData> guildCommands;
-    private final Map<AbstractCommand, CommandData> keep;
+    protected final DiscordBotClient client;
+    @NonNull
+    protected final JDA jda;
+    @NonNull
+    protected final Set<Class<? extends AbstractCommand>> commandClasses;
+    @NonNull
+    protected final Map<AbstractCommand, CommandData> globalCommands;
+    @NonNull
+    protected final Map<AbstractCommand, CommandData> guildCommands;
+    // commands that are exempt from unsync
+    @NonNull
+    protected final Map<AbstractCommand, CommandData> keep;
 
-    public DiscordManager(final DiscordBotClient.Client client) throws InterruptedException {
+    public DiscordManager(@NonNull final DiscordBotClient client) throws InterruptedException {
         this.client = client;
         this.jda = JDABuilder.createDefault(client.getConfiguration().get(ConfigKeys.TOKEN))
                 .enableIntents(GatewayIntent.GUILD_MEMBERS, GatewayIntent.MESSAGE_CONTENT,
                         GatewayIntent.GUILD_MESSAGES).setActivity(
                         Activity.customStatus(client.getConfiguration().get(ConfigKeys.STATUS)))
                 .build().awaitReady();
+        this.commandClasses = ImmutableSet.copyOf(this.constructCommandClasses());
 
-        final Map<AbstractCommand, CommandData> commands = this.constructCommands();
+        final Map<AbstractCommand, CommandData> commands = new HashMap<>();
+
+        this.commandClasses.forEach(c -> {
+            try {
+                final AbstractCommand abstractCommand = c.getConstructor(DiscordBotClient.class)
+                        .newInstance(this.client);
+
+                commands.put(abstractCommand, abstractCommand.createData());
+            } catch (final InstantiationException | IllegalAccessException |
+                           InvocationTargetException | NoSuchMethodException e) {
+                throw new RuntimeException(e);
+            }
+        });
+
         final Map<AbstractCommand, CommandData> globalCommands = new HashMap<>();
         final Map<AbstractCommand, CommandData> guildCommands = new HashMap<>();
         final Map<AbstractCommand, CommandData> keep = new HashMap<>();
@@ -85,7 +104,7 @@ public class DiscordManager {
                 globalCommands.put(key, value);
             }
 
-            if (key.getClass() == SyncCommand.class) {
+            if (key.keep()) {
                 keep.put(key, value);
             }
         });
@@ -206,21 +225,9 @@ public class DiscordManager {
     }
 
     @NonNull
-    private Map<AbstractCommand, CommandData> constructCommands() {
-        final Map<AbstractCommand, CommandData> commands = new HashMap<>();
-
-        commandClasses.forEach(c -> {
-            try {
-                final AbstractCommand abstractCommand = c.getConstructor(
-                        DiscordBotClient.Client.class).newInstance(this.client);
-
-                commands.put(abstractCommand, abstractCommand.createData());
-            } catch (final InstantiationException | IllegalAccessException |
-                           InvocationTargetException | NoSuchMethodException e) {
-                throw new RuntimeException(e);
-            }
-        });
-
-        return ImmutableMap.copyOf(commands);
+    private Set<Class<? extends AbstractCommand>> constructCommandClasses() {
+        return new HashSet<>(
+                Arrays.asList(ReloadCommand.class, RestartCommand.class, ShutdownCommand.class,
+                        SyncCommand.class, TestCommand.class, UnsyncCommand.class));
     }
 }

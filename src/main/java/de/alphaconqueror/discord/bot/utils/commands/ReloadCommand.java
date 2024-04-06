@@ -40,7 +40,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class ReloadCommand extends AbstractCommand {
 
-    public ReloadCommand(final DiscordBotClient.@NonNull Client client) {
+    public ReloadCommand(final @NonNull DiscordBotClient client) {
         super(client, "reload", "Reloads the bot.");
     }
 

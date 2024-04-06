@@ -37,7 +37,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class RestartCommand extends AbstractCommand {
 
-    public RestartCommand(final DiscordBotClient.@NonNull Client client) {
+    public RestartCommand(final @NonNull DiscordBotClient client) {
         super(client, "restart", "Restarts the bot.");
     }
 

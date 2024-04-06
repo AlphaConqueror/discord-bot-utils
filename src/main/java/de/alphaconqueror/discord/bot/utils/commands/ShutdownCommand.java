@@ -37,7 +37,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class ShutdownCommand extends AbstractCommand {
 
-    public ShutdownCommand(final DiscordBotClient.@NonNull Client client) {
+    public ShutdownCommand(final @NonNull DiscordBotClient client) {
         super(client, "shutdown", "Shuts down the bot.");
     }
 

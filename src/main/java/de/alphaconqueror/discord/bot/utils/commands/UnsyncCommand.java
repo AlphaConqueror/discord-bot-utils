@@ -41,7 +41,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class UnsyncCommand extends AbstractCommand {
 
-    public UnsyncCommand(final DiscordBotClient.@NonNull Client client) {
+    public UnsyncCommand(final @NonNull DiscordBotClient client) {
         super(client, "unsync", "Unsynchronizes the slash commands.");
     }
 

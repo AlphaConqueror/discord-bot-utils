@@ -79,15 +79,15 @@ public abstract class AbstractCommandNode<T> {
         return this.permission;
     }
 
-    protected void checkPermission(final DiscordBotClient.@NonNull Client client,
-            @NonNull final User user, final Permission permission) throws NoPermissionException {
+    protected void checkPermission(final @NonNull DiscordBotClient client, @NonNull final User user,
+            final Permission permission) throws NoPermissionException {
         if (!this.canUse(client, user, permission)) {
             throw new NoPermissionException(permission);
         }
     }
 
-    protected boolean canUse(final DiscordBotClient.@NonNull Client client,
-            @NonNull final User user, final Permission permission) {
+    protected boolean canUse(final @NonNull DiscordBotClient client, @NonNull final User user,
+            final Permission permission) {
         return client.getPermissionManager().hasPermission(user, permission);
     }
 }

@@ -41,20 +41,28 @@ import org.jetbrains.annotations.NotNull;
 
 public abstract class AbstractCommand extends ListenerAdapter {
 
-    protected final DiscordBotClient.@NonNull Client client;
+    @NonNull
+    protected final DiscordBotClient client;
     @NonNull
     protected final String name;
     @NonNull
     protected final String description;
     @NonNull
     protected final RootCommandNode rootCommandNode;
+    protected final boolean keep;
 
-    public AbstractCommand(final DiscordBotClient.@NonNull Client client,
-            @NonNull final String name, @NonNull final String description) {
+    public AbstractCommand(final @NonNull DiscordBotClient client, @NonNull final String name,
+            @NonNull final String description) {
+        this(client, name, description, false);
+    }
+
+    public AbstractCommand(final @NonNull DiscordBotClient client, @NonNull final String name,
+            @NonNull final String description, final boolean keep) {
         this.client = client;
         this.name = name;
         this.description = description;
         this.rootCommandNode = this.build(Commands.slash(this.name, this.description));
+        this.keep = keep;
     }
 
     @Override
@@ -91,6 +99,10 @@ public abstract class AbstractCommand extends ListenerAdapter {
     @NonNull
     public String getName() {
         return this.name;
+    }
+
+    public boolean keep() {
+        return this.keep;
     }
 
     @NonNull

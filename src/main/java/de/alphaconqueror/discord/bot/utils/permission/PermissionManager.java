@@ -36,9 +36,9 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 
 public class PermissionManager {
 
-    private final DiscordBotClient.Client client;
+    private final DiscordBotClient client;
 
-    public PermissionManager(final DiscordBotClient.Client client) {this.client = client;}
+    public PermissionManager(final DiscordBotClient client) {this.client = client;}
 
     public boolean hasPermission(@NonNull final User user, @NonNull final Permission permission) {
         final Guild guild = this.client.getDiscordManager().getGuild();

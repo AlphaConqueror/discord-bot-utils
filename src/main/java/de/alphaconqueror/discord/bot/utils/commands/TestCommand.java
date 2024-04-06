@@ -26,46 +26,11 @@ package de.alphaconqueror.discord.bot.utils.commands;
 
 import de.alphaconqueror.discord.bot.utils.DiscordBotClient;
 import de.alphaconqueror.discord.bot.utils.command.abstraction.AbstractCommand;
-import de.alphaconqueror.discord.bot.utils.command.builder.Commands;
-import de.alphaconqueror.discord.bot.utils.command.builder.RootCommandBuilder;
-import de.alphaconqueror.discord.bot.utils.command.builder.node.RootCommandNode;
-import de.alphaconqueror.discord.bot.utils.util.Embeds;
-import java.awt.Font;
-import java.awt.font.FontRenderContext;
-import java.awt.geom.AffineTransform;
-import java.util.Locale;
-import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel;
-import net.dv8tion.jda.api.interactions.commands.DefaultMemberPermissions;
-import net.dv8tion.jda.api.interactions.commands.OptionType;
 import org.checkerframework.checker.nullness.qual.NonNull;
-import org.jetbrains.annotations.NotNull;
 
 public class TestCommand extends AbstractCommand {
 
-    public TestCommand(final DiscordBotClient.@NonNull Client client) {
+    public TestCommand(final @NonNull DiscordBotClient client) {
         super(client, "test", "A command for testing.");
-    }
-
-    @Override
-    protected @NonNull RootCommandNode build(@NotNull final RootCommandBuilder data) {
-        return data.showFor(DefaultMemberPermissions.enabledFor(Permission.ALL_PERMISSIONS))
-                .requires(de.alphaconqueror.discord.bot.utils.permission.Permission.TEST)
-                .then(Commands.option("channel", "A channel.", OptionType.CHANNEL).required()
-                        .executes(context -> {
-                            final GuildChannel channel = context.getOption("channel")
-                                    .getAsChannel();
-                            final String text = channel.getName().toLowerCase(Locale.ROOT);
-                            final AffineTransform affinetransform = new AffineTransform();
-                            final FontRenderContext frc = new FontRenderContext(affinetransform,
-                                    true, true);
-                            final Font font = new Font("Arial", Font.PLAIN, 12);
-                            final double textwidth = font.getStringBounds(text, frc).getWidth();
-
-                            System.out.println("WIDTH: " + textwidth);
-
-                            return context.getEvent().getHook()
-                                    .sendMessageEmbeds(Embeds.SUCCESS.apply("Tested."));
-                        })).build();
     }
 }

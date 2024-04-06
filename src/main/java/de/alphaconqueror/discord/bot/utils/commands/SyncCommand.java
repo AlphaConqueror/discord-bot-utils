@@ -41,8 +41,8 @@ import org.jetbrains.annotations.NotNull;
 
 public class SyncCommand extends AbstractCommand {
 
-    public SyncCommand(final DiscordBotClient.@NonNull Client client) {
-        super(client, "sync", "Synchronizes the slash commands.");
+    public SyncCommand(final @NonNull DiscordBotClient client) {
+        super(client, "sync", "Synchronizes the slash commands.", true);
     }
 
     @NonNull
