@@ -28,15 +28,6 @@ if (envFile.exists()) {
 
 repositories {
     mavenCentral()
-
-    maven {
-        url = uri("https://maven.pkg.github.com/alphaconqueror/java-common-utils")
-
-        credentials {
-            username = envMap["USERNAME"]
-            password = envMap["TOKEN"]
-        }
-    }
 }
 
 dependencies {
@@ -46,8 +37,8 @@ dependencies {
     api 'org.apache.logging.log4j:log4j-core:2.22.1'
     api 'org.apache.logging.log4j:log4j-api:2.22.1'
 
+    api 'com.google.guava:guava:33.0.0-jre'
     api 'net.dv8tion:JDA:5.0.0-beta.19'
-    api 'de.alphaconqueror:java-common-utils:1.0-SNAPSHOT'
 
     api 'com.typesafe:config:1.4.0'
 
@@ -105,6 +96,7 @@ javadoc {
     title = 'Discord Bot Utils (v' + apiVersion + ')'
     options.encoding = 'UTF-8'
     options.charSet = 'UTF-8'
+    options.addBooleanOption('Xdoclint:none', true)
 }
 
 java {

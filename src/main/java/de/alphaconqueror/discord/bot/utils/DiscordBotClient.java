@@ -24,11 +24,8 @@
 
 package de.alphaconqueror.discord.bot.utils;
 
-import de.alphaconqueror.common.utils.config.adapter.ConfigurationAdapter;
-import de.alphaconqueror.common.utils.logging.Logger;
-import de.alphaconqueror.discord.bot.utils.config.ConfigAdapter;
-import de.alphaconqueror.discord.bot.utils.config.DiscordBotConfiguration;
-import de.alphaconqueror.discord.bot.utils.logging.Log4jLogger;
+import de.alphaconqueror.discord.bot.utils.config.ConfigFactory;
+import de.alphaconqueror.discord.bot.utils.logging.LoggerFactory;
 import de.alphaconqueror.discord.bot.utils.manager.DiscordManager;
 import de.alphaconqueror.discord.bot.utils.permission.PermissionManager;
 import java.io.IOException;
@@ -39,23 +36,26 @@ import java.nio.file.Paths;
 import java.time.Duration;
 import java.time.Instant;
 import net.dv8tion.jda.api.JDA;
-import org.apache.logging.log4j.LogManager;
 
 public abstract class DiscordBotClient {
 
-    private final Logger logger = new Log4jLogger(LogManager.getLogger(DiscordBotClient.class));
-    private final PermissionManager permissionManager = new PermissionManager(this);
-    private DiscordBotConfiguration configuration;
+    private final LoggerFactory logger = this.provideLoggerFactory();
+    private final ConfigFactory configFactory = this.provideConfigFactory();
+    private PermissionManager permissionManager;
     private DiscordManager discordManager;
+
+
+    protected abstract LoggerFactory provideLoggerFactory();
+
+    protected abstract ConfigFactory provideConfigFactory();
 
     public void enable() {
         final Instant startupTime = Instant.now();
         this.logger.info("Starting discord bot...");
         // load configuration
         this.logger.info("Loading configuration...");
-        final ConfigurationAdapter configFileAdapter = new ConfigAdapter(
-                this.resolveConfig("config.conf"));
-        this.configuration = new DiscordBotConfiguration(this.logger, configFileAdapter);
+
+        this.permissionManager = new PermissionManager(this);
 
         try {
             this.discordManager = new DiscordManager(this);
@@ -103,7 +103,7 @@ public abstract class DiscordBotClient {
         System.exit(0);
     }
 
-    public Logger getLogger() {
+    public LoggerFactory getLogger() {
         return this.logger;
     }
 
@@ -111,12 +111,12 @@ public abstract class DiscordBotClient {
         return this.permissionManager;
     }
 
-    public DiscordBotConfiguration getConfiguration() {
-        return this.configuration;
-    }
-
     public DiscordManager getDiscordManager() {
         return this.discordManager;
+    }
+
+    public ConfigFactory getConfigFactory() {
+        return this.configFactory;
     }
 
     protected void onEnable() {}

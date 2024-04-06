@@ -22,28 +22,21 @@
  * SOFTWARE.
  */
 
-package de.alphaconqueror.discord.bot.utils.logging;
+package de.alphaconqueror.discord.bot.utils.config;
 
-import de.alphaconqueror.common.utils.logging.Logger;
+import de.alphaconqueror.discord.bot.utils.permission.Permission;
+import java.util.Map;
+import java.util.Set;
 
-public class Log4jLogger implements Logger {
+public interface ConfigFactory {
 
-    private final org.apache.logging.log4j.Logger logger;
+    Map<Long, Set<Permission>> getPermissions();
 
-    public Log4jLogger(final org.apache.logging.log4j.Logger logger) {this.logger = logger;}
+    String getToken();
 
-    @Override
-    public void info(final String s, final Object... args) {
-        this.logger.info(s, args);
-    }
+    String getStatus();
 
-    @Override
-    public void warn(final String s, final Object... args) {
-        this.logger.warn(s, args);
-    }
+    long getGuildId();
 
-    @Override
-    public void severe(final String s, final Throwable throwable) {
-        this.logger.error(s, throwable);
-    }
+    void reload();
 }

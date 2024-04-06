@@ -34,7 +34,6 @@ import de.alphaconqueror.discord.bot.utils.commands.ShutdownCommand;
 import de.alphaconqueror.discord.bot.utils.commands.SyncCommand;
 import de.alphaconqueror.discord.bot.utils.commands.TestCommand;
 import de.alphaconqueror.discord.bot.utils.commands.UnsyncCommand;
-import de.alphaconqueror.discord.bot.utils.config.ConfigKeys;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.Collection;
@@ -71,11 +70,11 @@ public class DiscordManager {
 
     public DiscordManager(@NonNull final DiscordBotClient client) throws InterruptedException {
         this.client = client;
-        this.jda = JDABuilder.createDefault(client.getConfiguration().get(ConfigKeys.TOKEN))
+        this.jda = JDABuilder.createDefault(client.getConfigFactory().getToken())
                 .enableIntents(GatewayIntent.GUILD_MEMBERS, GatewayIntent.MESSAGE_CONTENT,
-                        GatewayIntent.GUILD_MESSAGES).setActivity(
-                        Activity.customStatus(client.getConfiguration().get(ConfigKeys.STATUS)))
-                .build().awaitReady();
+                        GatewayIntent.GUILD_MESSAGES)
+                .setActivity(Activity.customStatus(client.getConfigFactory().getStatus())).build()
+                .awaitReady();
         this.commandClasses = ImmutableSet.copyOf(this.constructCommandClasses());
 
         final Map<AbstractCommand, CommandData> commands = new HashMap<>();
@@ -123,7 +122,7 @@ public class DiscordManager {
 
     @Nullable
     public Guild getGuild() {
-        return this.jda.getGuildById(this.client.getConfiguration().get(ConfigKeys.GUILD_ID));
+        return this.jda.getGuildById(this.client.getConfigFactory().getGuildId());
     }
 
     public boolean syncAllCommands() {

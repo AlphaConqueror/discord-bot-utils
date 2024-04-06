@@ -25,7 +25,6 @@
 package de.alphaconqueror.discord.bot.utils.permission;
 
 import de.alphaconqueror.discord.bot.utils.DiscordBotClient;
-import de.alphaconqueror.discord.bot.utils.config.ConfigKeys;
 import java.util.Map;
 import java.util.Set;
 import net.dv8tion.jda.api.entities.Guild;
@@ -59,8 +58,8 @@ public class PermissionManager {
             return false;
         }
 
-        final Map<Long, Set<Permission>> permissionMap = this.client.getConfiguration()
-                .get(ConfigKeys.PERMISSIONS);
+        final Map<Long, Set<Permission>> permissionMap = this.client.getConfigFactory()
+                .getPermissions();
 
         // iterate through each role and
         return member.getRoles().stream().anyMatch(role -> {

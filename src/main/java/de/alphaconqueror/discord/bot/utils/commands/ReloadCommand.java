@@ -55,7 +55,7 @@ public class ReloadCommand extends AbstractCommand {
     @NonNull
     private WebhookMessageCreateAction<Message> reload(@NonNull final InteractionContext context) {
         try {
-            this.client.getConfiguration().reload();
+            this.client.getConfigFactory().reload();
             return context.getEvent().getHook()
                     .sendMessageEmbeds(Embeds.SUCCESS.apply("Reload complete.")).setEphemeral(true);
         } catch (final RuntimeException e) {

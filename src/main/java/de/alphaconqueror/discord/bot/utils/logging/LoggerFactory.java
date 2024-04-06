@@ -22,22 +22,13 @@
  * SOFTWARE.
  */
 
-package de.alphaconqueror.discord.bot.utils.config;
+package de.alphaconqueror.discord.bot.utils.logging;
 
-import de.alphaconqueror.common.utils.config.adapter.ConfigurateConfigAdapter;
-import java.nio.file.Path;
-import ninja.leaping.configurate.ConfigurationNode;
-import ninja.leaping.configurate.hocon.HoconConfigurationLoader;
-import ninja.leaping.configurate.loader.ConfigurationLoader;
+public interface LoggerFactory {
 
-public class ConfigAdapter extends ConfigurateConfigAdapter {
+    void info(final String s, final Object... args);
 
-    public ConfigAdapter(final Path path) {
-        super(path);
-    }
+    void warn(final String s, final Object... args);
 
-    @Override
-    protected ConfigurationLoader<? extends ConfigurationNode> createLoader(final Path path) {
-        return HoconConfigurationLoader.builder().setPath(path).build();
-    }
+    void severe(final String s, final Throwable throwable);
 }
