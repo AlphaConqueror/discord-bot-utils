@@ -35,7 +35,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.jetbrains.annotations.NotNull;
 
-public abstract class DiscordBotClient {
+public abstract class DiscordBotClient<T extends DiscordManager> {
 
     @NonNull
     private final LoggerFactory logger = this.provideLoggerFactory();
@@ -44,7 +44,7 @@ public abstract class DiscordBotClient {
     @Nullable
     private PermissionManager permissionManager;
     @Nullable
-    private DiscordManager discordManager;
+    private T discordManager;
 
     @NonNull
     protected abstract LoggerFactory provideLoggerFactory();
@@ -56,7 +56,7 @@ public abstract class DiscordBotClient {
     protected abstract PermissionManager providePermissionManager();
 
     @NonNull
-    protected abstract DiscordManager provideDiscordManager() throws InterruptedException;
+    protected abstract T provideDiscordManager() throws InterruptedException;
 
     public void enable() {
         final Instant startupTime = Instant.now();
