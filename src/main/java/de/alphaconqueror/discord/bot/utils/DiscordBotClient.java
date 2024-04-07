@@ -130,7 +130,7 @@ public abstract class DiscordBotClient<T extends DiscordManager> {
     }
 
     @Nullable
-    public DiscordManager getDiscordManager() {
+    public T getDiscordManager() {
         return this.discordManager;
     }
 
