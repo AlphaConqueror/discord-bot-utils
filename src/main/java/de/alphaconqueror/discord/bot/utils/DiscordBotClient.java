@@ -28,26 +28,35 @@ import de.alphaconqueror.discord.bot.utils.config.ConfigFactory;
 import de.alphaconqueror.discord.bot.utils.logging.LoggerFactory;
 import de.alphaconqueror.discord.bot.utils.manager.DiscordManager;
 import de.alphaconqueror.discord.bot.utils.permission.PermissionManager;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.time.Duration;
 import java.time.Instant;
 import net.dv8tion.jda.api.JDA;
+import org.checkerframework.checker.nullness.qual.NonNull;
+import org.checkerframework.checker.nullness.qual.Nullable;
+import org.jetbrains.annotations.NotNull;
 
 public abstract class DiscordBotClient {
 
+    @NonNull
     private final LoggerFactory logger = this.provideLoggerFactory();
+    @NonNull
     private final ConfigFactory configFactory = this.provideConfigFactory();
+    @Nullable
     private PermissionManager permissionManager;
+    @Nullable
     private DiscordManager discordManager;
 
-
+    @NonNull
     protected abstract LoggerFactory provideLoggerFactory();
 
+    @NonNull
     protected abstract ConfigFactory provideConfigFactory();
+
+    @NonNull
+    protected abstract PermissionManager providePermissionManager();
+
+    @NonNull
+    protected abstract DiscordManager provideDiscordManager() throws InterruptedException;
 
     public void enable() {
         final Instant startupTime = Instant.now();
@@ -55,10 +64,10 @@ public abstract class DiscordBotClient {
         // load configuration
         this.logger.info("Loading configuration...");
 
-        this.permissionManager = new PermissionManager(this);
+        this.permissionManager = this.providePermissionManager();
 
         try {
-            this.discordManager = new DiscordManager(this);
+            this.discordManager = this.provideDiscordManager();
         } catch (final InterruptedException e) {
             throw new RuntimeException(e);
         }
@@ -85,67 +94,47 @@ public abstract class DiscordBotClient {
         this.disable();
         this.logger.info("Shutting down JDA...");
 
-        final JDA jda = this.discordManager.getJda();
+        if (this.discordManager != null) {
+            final JDA jda = this.discordManager.getJda();
 
-        jda.shutdown();
-        this.logger.info("Waiting for JDA to shutdown...");
+            jda.shutdown();
+            this.logger.info("Waiting for JDA to shutdown...");
 
-        try {
-            // Allow at most 10 seconds for remaining requests to finish
-            if (!jda.awaitShutdown(Duration.ofSeconds(10))) {
-                this.logger.info("Forcing shutdown...");
-                jda.shutdownNow(); // Cancel all remaining requests
+            try {
+                // Allow at most 10 seconds for remaining requests to finish
+                if (!jda.awaitShutdown(Duration.ofSeconds(10))) {
+                    this.logger.info("Forcing shutdown...");
+                    jda.shutdownNow(); // Cancel all remaining requests
+                }
+            } catch (final InterruptedException e) {
+                throw new RuntimeException(e);
             }
-        } catch (final InterruptedException e) {
-            throw new RuntimeException(e);
         }
 
         System.exit(0);
     }
 
+    @NotNull
     public LoggerFactory getLogger() {
         return this.logger;
     }
 
+    @NotNull
+    public ConfigFactory getConfigFactory() {
+        return this.configFactory;
+    }
+
+    @Nullable
     public PermissionManager getPermissionManager() {
         return this.permissionManager;
     }
 
+    @Nullable
     public DiscordManager getDiscordManager() {
         return this.discordManager;
-    }
-
-    public ConfigFactory getConfigFactory() {
-        return this.configFactory;
     }
 
     protected void onEnable() {}
 
     protected void onDisable() {}
-
-    private Path resolveConfig(final String fileName) {
-        final Path configFile = Paths.get(fileName);
-
-        // if the config doesn't exist, create it based on the template in the resources dir
-        if (!Files.exists(configFile)) {
-            if (configFile.getParent() != null) {
-                try {
-                    Files.createDirectories(configFile.getParent());
-                } catch (final IOException ignored) {}
-            }
-
-            try (final InputStream is = this.getClass().getClassLoader()
-                    .getResourceAsStream(fileName)) {
-                if (is == null) {
-                    this.logger.warn("Could not find file '{}' in the resources.", fileName);
-                } else {
-                    Files.copy(is, configFile);
-                }
-            } catch (final IOException e) {
-                throw new RuntimeException(e);
-            }
-        }
-
-        return configFile;
-    }
 }
