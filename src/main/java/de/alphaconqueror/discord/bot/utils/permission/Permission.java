@@ -24,9 +24,7 @@
 
 package de.alphaconqueror.discord.bot.utils.permission;
 
-import org.checkerframework.checker.nullness.qual.Nullable;
-
 public interface Permission {
 
-    @Nullable String getPermission();
+    String getPermission();
 }
