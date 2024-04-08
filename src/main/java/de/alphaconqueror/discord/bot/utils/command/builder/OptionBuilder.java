@@ -27,6 +27,7 @@ package de.alphaconqueror.discord.bot.utils.command.builder;
 import de.alphaconqueror.discord.bot.utils.command.abstraction.CommandFunction;
 import de.alphaconqueror.discord.bot.utils.command.builder.node.ChoiceNode;
 import de.alphaconqueror.discord.bot.utils.command.builder.node.OptionNode;
+import de.alphaconqueror.discord.bot.utils.permission.DiscordPermission;
 import de.alphaconqueror.discord.bot.utils.permission.Permission;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -94,7 +95,7 @@ public class OptionBuilder extends AbstractCommandBuilder<OptionNode, OptionBuil
     @CheckReturnValue
     public OptionBuilder addChoice(@NonNull final String name,
             @NonNull final CommandFunction function) {
-        return this.addChoice(name, Permission.NONE, function);
+        return this.addChoice(name, DiscordPermission.NONE, function);
     }
 
     @NonNull

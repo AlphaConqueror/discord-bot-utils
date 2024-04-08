@@ -29,6 +29,7 @@ import de.alphaconqueror.discord.bot.utils.command.InteractionContext;
 import de.alphaconqueror.discord.bot.utils.command.abstraction.AbstractCommand;
 import de.alphaconqueror.discord.bot.utils.command.builder.RootCommandBuilder;
 import de.alphaconqueror.discord.bot.utils.command.builder.node.RootCommandNode;
+import de.alphaconqueror.discord.bot.utils.permission.DiscordPermission;
 import de.alphaconqueror.discord.bot.utils.util.Embeds;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
@@ -48,8 +49,7 @@ public class ReloadCommand extends AbstractCommand {
     @Override
     protected RootCommandNode build(@NotNull final RootCommandBuilder data) {
         return data.showFor(DefaultMemberPermissions.enabledFor(Permission.ALL_PERMISSIONS))
-                .requires(de.alphaconqueror.discord.bot.utils.permission.Permission.RELOAD)
-                .executes(this::reload).build();
+                .requires(DiscordPermission.RELOAD).executes(this::reload).build();
     }
 
     @NonNull

@@ -25,6 +25,7 @@
 package de.alphaconqueror.discord.bot.utils.command.builder;
 
 import de.alphaconqueror.discord.bot.utils.command.builder.node.AbstractCommandNode;
+import de.alphaconqueror.discord.bot.utils.permission.DiscordPermission;
 import de.alphaconqueror.discord.bot.utils.permission.Permission;
 import javax.annotation.CheckReturnValue;
 import org.checkerframework.checker.nullness.qual.NonNull;
@@ -37,7 +38,7 @@ public abstract class AbstractCommandBuilder<T extends AbstractCommandNode<?>,
     @NonNull
     protected final String description;
     @NonNull
-    protected Permission permission = Permission.NONE;
+    protected Permission permission = DiscordPermission.NONE;
 
     protected AbstractCommandBuilder(@NonNull final String name,
             @NonNull final String description) {

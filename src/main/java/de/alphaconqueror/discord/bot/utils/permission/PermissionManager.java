@@ -49,7 +49,7 @@ public class PermissionManager {
     public boolean hasPermission(@Nullable final Member member,
             @NonNull final Permission permission) {
         // no permission needed
-        if (permission == Permission.NONE) {
+        if (permission == DiscordPermission.NONE) {
             return true;
         }
 

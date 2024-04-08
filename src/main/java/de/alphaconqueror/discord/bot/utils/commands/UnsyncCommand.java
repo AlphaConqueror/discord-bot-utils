@@ -30,6 +30,7 @@ import de.alphaconqueror.discord.bot.utils.command.abstraction.AbstractCommand;
 import de.alphaconqueror.discord.bot.utils.command.builder.Commands;
 import de.alphaconqueror.discord.bot.utils.command.builder.RootCommandBuilder;
 import de.alphaconqueror.discord.bot.utils.command.builder.node.RootCommandNode;
+import de.alphaconqueror.discord.bot.utils.permission.DiscordPermission;
 import de.alphaconqueror.discord.bot.utils.util.Embeds;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Message;
@@ -49,7 +50,7 @@ public class UnsyncCommand extends AbstractCommand {
     @Override
     protected RootCommandNode build(@NotNull final RootCommandBuilder data) {
         return data.showFor(DefaultMemberPermissions.enabledFor(Permission.ALL_PERMISSIONS))
-                .requires(de.alphaconqueror.discord.bot.utils.permission.Permission.UNSYNC)
+                .requires(DiscordPermission.UNSYNC)
                 .then(Commands.option("type", "The type of synchronization.", OptionType.STRING)
                         .required().addChoice("ALL", this::unsyncAll)
                         .addChoice("GLOBAL", this::unsyncGlobal)

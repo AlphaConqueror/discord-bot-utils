@@ -24,9 +24,38 @@
 
 package de.alphaconqueror.discord.bot.utils.permission;
 
+import java.util.Arrays;
+import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
-public interface Permission {
+public enum DiscordPermission implements Permission {
 
-    @Nullable String getPermission();
+    NONE(null),
+    REFORMAT("reformat"),
+    RELOAD("reload"),
+    RESTART("restart"),
+    SHUTDOWN("shutdown"),
+    SYNC("sync"),
+    TEST("test"),
+    UNSYNC("unsync");
+
+    @Nullable
+    private final String permission;
+
+    DiscordPermission(@Nullable final String permission) {
+        this.permission = permission;
+    }
+
+    @NonNull
+    public static DiscordPermission fromString(@NonNull final String permission) {
+        return Arrays.stream(DiscordPermission.values())
+                .filter(p -> p.permission != null && p.permission.equals(permission)).findAny()
+                .orElse(NONE);
+    }
+
+    @Override
+    @Nullable
+    public String getPermission() {
+        return this.permission;
+    }
 }

@@ -28,6 +28,7 @@ import de.alphaconqueror.discord.bot.utils.DiscordBotClient;
 import de.alphaconqueror.discord.bot.utils.command.abstraction.AbstractCommand;
 import de.alphaconqueror.discord.bot.utils.command.builder.RootCommandBuilder;
 import de.alphaconqueror.discord.bot.utils.command.builder.node.RootCommandNode;
+import de.alphaconqueror.discord.bot.utils.permission.DiscordPermission;
 import java.awt.Color;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
@@ -44,8 +45,7 @@ public class RestartCommand extends AbstractCommand {
     @Override
     protected @NonNull RootCommandNode build(@NotNull final RootCommandBuilder data) {
         return data.showFor(DefaultMemberPermissions.enabledFor(Permission.ALL_PERMISSIONS))
-                .requires(de.alphaconqueror.discord.bot.utils.permission.Permission.RESTART)
-                .executes(context -> {
+                .requires(DiscordPermission.RESTART).executes(context -> {
                     this.client.restart();
                     return context.getEvent().getHook().sendMessageEmbeds(
                             new EmbedBuilder().setDescription("Restarting...")
