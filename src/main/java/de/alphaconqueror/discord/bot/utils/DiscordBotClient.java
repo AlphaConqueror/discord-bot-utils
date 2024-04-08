@@ -32,106 +32,64 @@ import java.time.Duration;
 import java.time.Instant;
 import net.dv8tion.jda.api.JDA;
 import org.checkerframework.checker.nullness.qual.NonNull;
-import org.checkerframework.checker.nullness.qual.Nullable;
 import org.jetbrains.annotations.NotNull;
 
-public abstract class DiscordBotClient<T extends DiscordManager> {
+public abstract class DiscordBotClient {
 
     @NonNull
-    private final LoggerFactory logger = this.provideLoggerFactory();
-    @NonNull
-    private final ConfigFactory configFactory = this.provideConfigFactory();
-    @Nullable
-    private PermissionManager permissionManager;
-    @Nullable
-    private T discordManager;
+    public abstract PermissionManager getPermissionManager();
 
     @NonNull
-    protected abstract LoggerFactory provideLoggerFactory();
+    public abstract DiscordManager getDiscordManager();
 
-    @NonNull
-    protected abstract ConfigFactory provideConfigFactory();
+    @NotNull
+    public abstract ConfigFactory getConfigFactory();
 
-    @NonNull
-    protected abstract PermissionManager providePermissionManager();
-
-    @NonNull
-    protected abstract T provideDiscordManager() throws InterruptedException;
+    @NotNull
+    public abstract LoggerFactory getLogger();
 
     public void enable() {
         final Instant startupTime = Instant.now();
-        this.logger.info("Starting discord bot...");
-        // load configuration
-        this.logger.info("Loading configuration...");
-
-        this.permissionManager = this.providePermissionManager();
-
-        try {
-            this.discordManager = this.provideDiscordManager();
-        } catch (final InterruptedException e) {
-            throw new RuntimeException(e);
-        }
+        this.getLogger().info("Starting discord bot...");
 
         this.onEnable();
 
         final Duration timeTaken = Duration.between(startupTime, Instant.now());
-        this.logger.info("Successfully enabled. (took " + timeTaken.toMillis() + "ms)");
+        this.getLogger().info("Successfully enabled. (took " + timeTaken.toMillis() + "ms)");
     }
 
     public void disable() {
-        this.logger.info("Starting shutdown process...");
+        this.getLogger().info("Starting shutdown process...");
         this.onDisable();
-        this.logger.info("Goodbye!");
+        this.getLogger().info("Goodbye!");
     }
 
     public void restart() {
-        this.logger.info("Restarting...");
+        this.getLogger().info("Restarting...");
         this.disable();
         this.enable();
     }
 
     public void shutdown() {
         this.disable();
-        this.logger.info("Shutting down JDA...");
+        this.getLogger().info("Shutting down JDA...");
 
-        if (this.discordManager != null) {
-            final JDA jda = this.discordManager.getJda();
+        final JDA jda = this.getDiscordManager().getJda();
 
-            jda.shutdown();
-            this.logger.info("Waiting for JDA to shutdown...");
+        jda.shutdown();
+        this.getLogger().info("Waiting for JDA to shutdown...");
 
-            try {
-                // Allow at most 10 seconds for remaining requests to finish
-                if (!jda.awaitShutdown(Duration.ofSeconds(10))) {
-                    this.logger.info("Forcing shutdown...");
-                    jda.shutdownNow(); // Cancel all remaining requests
-                }
-            } catch (final InterruptedException e) {
-                throw new RuntimeException(e);
+        try {
+            // Allow at most 10 seconds for remaining requests to finish
+            if (!jda.awaitShutdown(Duration.ofSeconds(10))) {
+                this.getLogger().info("Forcing shutdown...");
+                jda.shutdownNow(); // Cancel all remaining requests
             }
+        } catch (final InterruptedException e) {
+            throw new RuntimeException(e);
         }
 
         System.exit(0);
-    }
-
-    @NotNull
-    public LoggerFactory getLogger() {
-        return this.logger;
-    }
-
-    @NotNull
-    public ConfigFactory getConfigFactory() {
-        return this.configFactory;
-    }
-
-    @Nullable
-    public PermissionManager getPermissionManager() {
-        return this.permissionManager;
-    }
-
-    @Nullable
-    public T getDiscordManager() {
-        return this.discordManager;
     }
 
     protected void onEnable() {}
