@@ -31,7 +31,6 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 public enum DiscordPermission implements Permission {
 
     NONE(null),
-    REFORMAT("reformat"),
     RELOAD("reload"),
     RESTART("restart"),
     SHUTDOWN("shutdown"),

@@ -229,7 +229,7 @@ public class DiscordManager {
     }
 
     @NonNull
-    private Set<Class<? extends AbstractCommand>> constructCommandClasses() {
+    protected Set<Class<? extends AbstractCommand>> constructCommandClasses() {
         return new HashSet<>(
                 Arrays.asList(ReloadCommand.class, RestartCommand.class, ShutdownCommand.class,
                         SyncCommand.class, TestCommand.class, UnsyncCommand.class));
