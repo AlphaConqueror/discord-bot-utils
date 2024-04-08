@@ -70,10 +70,10 @@ public class DiscordManager {
 
     public DiscordManager(@NonNull final DiscordBotClient client) throws InterruptedException {
         this.client = client;
-        this.jda = JDABuilder.createDefault(client.getConfigFactory().getToken())
+        this.jda = JDABuilder.createDefault(client.getConfig().getToken())
                 .enableIntents(GatewayIntent.GUILD_MEMBERS, GatewayIntent.MESSAGE_CONTENT,
                         GatewayIntent.GUILD_MESSAGES)
-                .setActivity(Activity.customStatus(client.getConfigFactory().getStatus())).build()
+                .setActivity(Activity.customStatus(client.getConfig().getStatus())).build()
                 .awaitReady();
         this.commandClasses = ImmutableSet.copyOf(this.constructCommandClasses());
 
@@ -122,7 +122,7 @@ public class DiscordManager {
 
     @Nullable
     public Guild getGuild() {
-        return this.jda.getGuildById(this.client.getConfigFactory().getGuildId());
+        return this.jda.getGuildById(this.client.getConfig().getGuildId());
     }
 
     public boolean syncAllCommands() {

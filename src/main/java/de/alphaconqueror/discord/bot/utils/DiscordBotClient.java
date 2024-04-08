@@ -43,10 +43,10 @@ public abstract class DiscordBotClient {
     public abstract DiscordManager getDiscordManager();
 
     @NotNull
-    public abstract ConfigFactory getConfigFactory();
+    public abstract LoggerFactory getLogger();
 
     @NotNull
-    public abstract LoggerFactory getLogger();
+    public abstract ConfigFactory getConfig();
 
     public void enable() {
         final Instant startupTime = Instant.now();

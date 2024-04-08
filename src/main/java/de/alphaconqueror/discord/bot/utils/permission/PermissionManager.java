@@ -58,8 +58,7 @@ public class PermissionManager {
             return false;
         }
 
-        final Map<Long, Set<Permission>> permissionMap = this.client.getConfigFactory()
-                .getPermissions();
+        final Map<Long, Set<Permission>> permissionMap = this.client.getConfig().getPermissions();
 
         // iterate through each role and
         return member.getRoles().stream().anyMatch(role -> {
