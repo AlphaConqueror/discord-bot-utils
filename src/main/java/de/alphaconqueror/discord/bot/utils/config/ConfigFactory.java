@@ -25,14 +25,18 @@
 package de.alphaconqueror.discord.bot.utils.config;
 
 import de.alphaconqueror.discord.bot.utils.permission.Permission;
+import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
+import net.dv8tion.jda.api.requests.GatewayIntent;
 
 public interface ConfigFactory {
 
     Map<Long, Set<Permission>> getPermissions();
 
     String getToken();
+
+    Collection<GatewayIntent> getIntents();
 
     String getStatus();
 

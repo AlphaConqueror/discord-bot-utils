@@ -47,7 +47,6 @@ import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
-import net.dv8tion.jda.api.requests.GatewayIntent;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.jetbrains.annotations.NotNull;
@@ -70,11 +69,17 @@ public class DiscordManager {
 
     public DiscordManager(@NonNull final DiscordBotClient client) throws InterruptedException {
         this.client = client;
-        this.jda = JDABuilder.createDefault(client.getConfig().getToken())
-                .enableIntents(GatewayIntent.GUILD_MEMBERS, GatewayIntent.MESSAGE_CONTENT,
-                        GatewayIntent.GUILD_MESSAGES)
-                .setActivity(Activity.customStatus(client.getConfig().getStatus())).build()
-                .awaitReady();
+
+        final JDABuilder builder = JDABuilder.createDefault(client.getConfig().getToken())
+                .enableIntents(client.getConfig().getIntents());
+        final String status = client.getConfig().getStatus();
+
+        if (!status.trim().isEmpty()) {
+            builder.setActivity(Activity.customStatus(client.getConfig().getStatus()));
+        }
+
+        this.jda = builder.build().awaitReady();
+
         this.commandClasses = ImmutableSet.copyOf(this.constructCommandClasses());
 
         final Map<AbstractCommand, CommandData> commands = new HashMap<>();
