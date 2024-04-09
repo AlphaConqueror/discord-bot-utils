@@ -30,6 +30,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 
 public enum DiscordPermission implements Permission {
 
+    ALL("all"),
     NONE(null),
     RELOAD("reload"),
     RESTART("restart"),

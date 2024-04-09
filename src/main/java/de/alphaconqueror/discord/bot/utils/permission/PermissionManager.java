@@ -70,7 +70,8 @@ public class PermissionManager {
             }
 
             // check if role contains missing permission
-            return obtainedPermissions.stream().anyMatch(permission::equals);
+            return obtainedPermissions.stream()
+                    .anyMatch(p -> p == DiscordPermission.ALL || permission.equals(p));
         });
     }
 }
