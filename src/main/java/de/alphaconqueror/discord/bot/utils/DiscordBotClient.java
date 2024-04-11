@@ -72,24 +72,25 @@ public abstract class DiscordBotClient {
 
     public void shutdown() {
         this.disable();
-        this.getLogger().info("Shutting down JDA...");
 
-        final JDA jda = this.getDiscordManager().getJda();
+        if (this.getDiscordManager().isJDAReady()) {
+            this.getLogger().info("Shutting down JDA...");
 
-        jda.shutdown();
-        this.getLogger().info("Waiting for JDA to shutdown...");
+            final JDA jda = this.getDiscordManager().getJda();
 
-        try {
-            // Allow at most 10 seconds for remaining requests to finish
-            if (!jda.awaitShutdown(Duration.ofSeconds(10))) {
-                this.getLogger().info("Forcing shutdown...");
-                jda.shutdownNow(); // Cancel all remaining requests
+            jda.shutdown();
+            this.getLogger().info("Waiting for JDA to shutdown...");
+
+            try {
+                // Allow at most 10 seconds for remaining requests to finish
+                if (!jda.awaitShutdown(Duration.ofSeconds(10))) {
+                    this.getLogger().info("Forcing shutdown...");
+                    jda.shutdownNow(); // Cancel all remaining requests
+                }
+            } catch (final InterruptedException e) {
+                throw new RuntimeException(e);
             }
-        } catch (final InterruptedException e) {
-            throw new RuntimeException(e);
         }
-
-        System.exit(0);
     }
 
     protected void onEnable() {}

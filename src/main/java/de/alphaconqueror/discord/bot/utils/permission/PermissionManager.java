@@ -27,7 +27,6 @@ package de.alphaconqueror.discord.bot.utils.permission;
 import de.alphaconqueror.discord.bot.utils.DiscordBotClient;
 import java.util.Map;
 import java.util.Set;
-import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
 import org.checkerframework.checker.nullness.qual.NonNull;
@@ -40,10 +39,9 @@ public class PermissionManager {
     public PermissionManager(final DiscordBotClient client) {this.client = client;}
 
     public boolean hasPermission(@NonNull final User user, @NonNull final Permission permission) {
-        final Guild guild = this.client.getDiscordManager().getGuild();
-
-        return guild != null && this.hasPermission(guild.retrieveMember(user).complete(),
-                permission);
+        return this.client.getDiscordManager().getGuild()
+                .map(guild -> this.hasPermission(guild.retrieveMember(user).complete(), permission))
+                .orElse(false);
     }
 
     public boolean hasPermission(@Nullable final Member member,

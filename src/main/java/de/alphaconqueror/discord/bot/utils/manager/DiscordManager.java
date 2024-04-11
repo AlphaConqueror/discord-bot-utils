@@ -34,12 +34,14 @@ import de.alphaconqueror.discord.bot.utils.commands.ShutdownCommand;
 import de.alphaconqueror.discord.bot.utils.commands.SyncCommand;
 import de.alphaconqueror.discord.bot.utils.commands.TestCommand;
 import de.alphaconqueror.discord.bot.utils.commands.UnsyncCommand;
+import de.alphaconqueror.discord.bot.utils.exception.JDANotReadyException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import net.dv8tion.jda.api.JDA;
@@ -49,13 +51,12 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
-import org.jetbrains.annotations.NotNull;
 
 public class DiscordManager {
 
     @NonNull
     protected final DiscordBotClient client;
-    @NonNull
+    @Nullable
     protected final JDA jda;
     @NonNull
     protected final Set<Class<? extends AbstractCommand>> commandClasses;
@@ -120,14 +121,22 @@ public class DiscordManager {
         this.syncAllCommands();
     }
 
-    @NotNull
-    public JDA getJda() {
+    public boolean isJDAReady() {
+        return this.jda != null;
+    }
+
+    @NonNull
+    public JDA getJda() throws JDANotReadyException {
+        if (this.jda == null) {
+            throw new JDANotReadyException();
+        }
+
         return this.jda;
     }
 
-    @Nullable
-    public Guild getGuild() {
-        return this.jda.getGuildById(this.client.getConfig().getGuildId());
+    public Optional<Guild> getGuild() {
+        return Optional.ofNullable(
+                this.getJda().getGuildById(this.client.getConfig().getGuildId()));
     }
 
     public boolean syncAllCommands() {
@@ -141,13 +150,13 @@ public class DiscordManager {
     }
 
     public void syncGlobalCommands() {
-        this.jda.updateCommands().addCommands(this.globalCommands.values()).queue();
+        this.getJda().updateCommands().addCommands(this.globalCommands.values()).queue();
         this.registerListeners(this.globalCommands.keySet());
         this.client.getLogger().info("Synchronized global commands.");
     }
 
     public void unsyncGlobalCommands() {
-        this.jda.updateCommands().addCommands(
+        this.getJda().updateCommands().addCommands(
                 this.keep.values().stream().filter(command -> !command.isGuildOnly())
                         .collect(Collectors.toList())).queue();
 
@@ -159,14 +168,14 @@ public class DiscordManager {
     }
 
     public boolean syncGuildCommands() {
-        final Guild guild = this.getGuild();
+        final Optional<Guild> guild = this.getGuild();
 
-        if (guild == null) {
+        if (!guild.isPresent()) {
             this.client.getLogger().info("Guild not found, could not synchronize guild commands.");
             return false;
         }
 
-        guild.updateCommands().addCommands(this.guildCommands.values()).queue();
+        guild.get().updateCommands().addCommands(this.guildCommands.values()).queue();
         this.registerListeners(this.guildCommands.keySet());
         this.client.getLogger().info("Synchronized guild commands.");
 
@@ -174,15 +183,15 @@ public class DiscordManager {
     }
 
     public boolean unsyncGuildCommands() {
-        final Guild guild = this.getGuild();
+        final Optional<Guild> guild = this.getGuild();
 
-        if (guild == null) {
+        if (!guild.isPresent()) {
             this.client.getLogger()
                     .info("Guild not found, could not unsynchronize guild commands.");
             return false;
         }
 
-        guild.updateCommands().addCommands(
+        guild.get().updateCommands().addCommands(
                 this.keep.values().stream().filter(CommandData::isGuildOnly)
                         .collect(Collectors.toList())).queue();
 
@@ -196,23 +205,25 @@ public class DiscordManager {
     }
 
     public boolean fixGuildCommands() {
-        final Guild guild = this.getGuild();
+        final Optional<Guild> guild = this.getGuild();
 
-        if (guild == null) {
+        if (!guild.isPresent()) {
             this.client.getLogger().info("Guild not found, could not synchronize guild commands.");
             return false;
         }
 
-        guild.updateCommands().addCommands(this.globalCommands.values()).queue();
+        guild.get().updateCommands().addCommands(this.globalCommands.values()).queue();
         this.client.getLogger().info("Global commands for guilds have been fixed.");
 
         return true;
     }
 
     public void registerListeners(final Collection<AbstractCommand> abstractCommands) {
+        final JDA jda = this.getJda();
+
         for (final AbstractCommand abstractCommand : abstractCommands) {
-            if (!this.jda.getRegisteredListeners().contains(abstractCommand)) {
-                this.jda.addEventListener(abstractCommand);
+            if (!jda.getRegisteredListeners().contains(abstractCommand)) {
+                jda.addEventListener(abstractCommand);
             }
         }
 
@@ -222,7 +233,7 @@ public class DiscordManager {
     }
 
     public void unregisterListeners(final Collection<AbstractCommand> abstractCommands) {
-        this.jda.removeEventListener(abstractCommands.toArray());
+        this.getJda().removeEventListener(abstractCommands.toArray());
         this.client.getLogger().info("Unregistered listeners for commands: {}",
                 abstractCommands.stream().map(AbstractCommand::getName)
                         .collect(Collectors.toList()));
