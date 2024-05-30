@@ -49,7 +49,8 @@ public class SyncCommand extends AbstractCommand {
     @NonNull
     @Override
     protected RootCommandNode build(@NotNull final RootCommandBuilder data) {
-        return data.showFor(DefaultMemberPermissions.enabledFor(Permission.ALL_PERMISSIONS))
+        return data.showFor(
+                        DefaultMemberPermissions.enabledFor(Permission.USE_APPLICATION_COMMANDS))
                 .requires(DiscordPermission.SYNC)
                 .then(Commands.option("type", "The type of synchronization.", OptionType.STRING)
                         .required().addChoice("ALL", this::syncAll)

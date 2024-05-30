@@ -44,7 +44,8 @@ public class ShutdownCommand extends AbstractCommand {
 
     @Override
     protected @NonNull RootCommandNode build(@NotNull final RootCommandBuilder data) {
-        return data.showFor(DefaultMemberPermissions.enabledFor(Permission.ALL_PERMISSIONS))
+        return data.showFor(
+                        DefaultMemberPermissions.enabledFor(Permission.USE_APPLICATION_COMMANDS))
                 .requires(DiscordPermission.SHUTDOWN).executes(
                         context -> context.getEvent().getHook().sendMessageEmbeds(
                                 new EmbedBuilder().setDescription("Shutting down...")

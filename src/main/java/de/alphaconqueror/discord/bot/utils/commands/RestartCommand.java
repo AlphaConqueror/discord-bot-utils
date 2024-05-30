@@ -44,7 +44,8 @@ public class RestartCommand extends AbstractCommand {
 
     @Override
     protected @NonNull RootCommandNode build(@NotNull final RootCommandBuilder data) {
-        return data.showFor(DefaultMemberPermissions.enabledFor(Permission.ALL_PERMISSIONS))
+        return data.showFor(
+                        DefaultMemberPermissions.enabledFor(Permission.USE_APPLICATION_COMMANDS))
                 .requires(DiscordPermission.RESTART).executes(context -> {
                     this.client.restart();
                     return context.getEvent().getHook().sendMessageEmbeds(
